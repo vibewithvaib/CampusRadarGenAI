@@ -1,8 +1,8 @@
-# AI Recruitment Recommendation System
+# CampusRadar Internship Recommendation System
 
 ## Overview
 
-The AI Recruitment Recommendation System helps connect students with suitable internships and assists recruiters in finding the most relevant candidates. It uses semantic search and Large Language Models (LLMs) to improve the recommendation process.
+The Internship Recommendation System helps connect students with suitable internships and assists recruiters in finding the most relevant candidates. It uses semantic search and Large Language Models (LLMs) to improve the recommendation process.
 
 The system provides two main functionalities:
 
