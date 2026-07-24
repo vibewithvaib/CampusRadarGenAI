@@ -1,47 +1,47 @@
-from app.core.config import settings
+from app.graph.recommendation_graph import recommendation_graph
 from app.models.schemas import (
     CandidateRecommendationRequest,
     InternshipRecommendationRequest
 )
-from app.repositories.chroma_repository import similarity_search
-from app.services.ranking_service import rank_profiles
+
 
 def recommend_candidates(
     request: CandidateRecommendationRequest
 ) -> dict:
-
-    recommended_ids = rank_profiles(
-        source_profile=request.internship_description,
-        target_profiles=request.applicant_profiles
+    result = recommendation_graph.invoke(
+        {
+            "source_profile": request.internship_description,
+            "target_document_type": "candidate",
+            "retrieved_profiles": [],
+            "ranked_profiles": [],
+            "recommendations": [],
+            "reflection": {},
+            "retry": False
+        }
     )
 
     return {
-        "recommended_student_ids": recommended_ids
+        "status": "success",
+        "recommendations": result["recommendations"]
     }
 
 
 def recommend_internships(
     request: InternshipRecommendationRequest
-) -> list:
-    
-    results = similarity_search(
-        query=request.student_profile,
-        document_type="internship",
-        n_results=settings.MAX_RECOMMENDATIONS
+) -> dict:
+    result = recommendation_graph.invoke(
+        {
+            "source_profile": request.candidate_profile,
+            "target_document_type": "internship",
+            "retrieved_profiles": [],
+            "ranked_profiles": [],
+            "recommendations": [],
+            "reflection": {},
+            "retry": False
+        }
     )
 
-    recommendations = []
-
-    ids = results.get("ids", [[]])[0]
-    documents = results.get("documents", [[]])[0]
-    metadatas = results.get("metadatas", [[]])[0]
-
-    for i in range(len(ids)):
-        recommendations.append(
-            {
-                "internshipId": metadatas[i]["id"],
-                "postingText": documents[i]
-            }
-        )
-
-    return recommendations
+    return {
+        "status": "success",
+        "recommendations": result["recommendations"]
+    }

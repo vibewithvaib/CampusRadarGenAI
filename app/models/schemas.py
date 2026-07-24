@@ -1,30 +1,17 @@
-from typing import Any, Dict, List
+from pydantic import BaseModel, Field
 
-from pydantic import BaseModel
-
-
-# ==========================================================
-# INGEST DOCUMENT
-# ==========================================================
 
 class IngestRequest(BaseModel):
-    text: str
-    metadata: Dict[str, Any]
+    document_id: str
+    document_type: str = Field(
+        description="candidate or internship"
+    )
+    content: str
 
-
-# ==========================================================
-# RECOMMEND CANDIDATES
-# ==========================================================
 
 class CandidateRecommendationRequest(BaseModel):
     internship_description: str
-    applicant_profiles: List[str]
 
-
-# ==========================================================
-# RECOMMEND INTERNSHIPS
-# ==========================================================
 
 class InternshipRecommendationRequest(BaseModel):
-    student_profile: str
-    student_skills: List[str] = []
+    candidate_profile: str

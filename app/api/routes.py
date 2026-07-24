@@ -1,11 +1,10 @@
 from fastapi import APIRouter, HTTPException
 
 from app.models.schemas import (
-    IngestRequest,
     CandidateRecommendationRequest,
-    InternshipRecommendationRequest
+    InternshipRecommendationRequest,
+    IngestRequest
 )
-
 from app.services.ingest_service import ingest_document
 from app.services.recommendation_service import (
     recommend_candidates,
@@ -15,11 +14,12 @@ from app.services.recommendation_service import (
 router = APIRouter()
 
 
-@router.post("/ingest", status_code=200)
-def ingest(request: IngestRequest):
+@router.post("/ingest")
+def ingest(
+    request: IngestRequest
+):
     try:
         return ingest_document(request)
-
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -27,26 +27,25 @@ def ingest(request: IngestRequest):
         )
 
 
-@router.post("/recommend/candidates", status_code=200)
-def recommend_candidates_route(
+@router.post("/recommend/candidates")
+def recommend_candidate_profiles(
     request: CandidateRecommendationRequest
 ):
     try:
         return recommend_candidates(request)
-
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=str(e)
         )
 
-@router.post("/recommend/internships", status_code=200)
-def recommend_internships_route(
+
+@router.post("/recommend/internships")
+def recommend_internship_postings(
     request: InternshipRecommendationRequest
 ):
     try:
         return recommend_internships(request)
-
     except Exception as e:
         raise HTTPException(
             status_code=500,

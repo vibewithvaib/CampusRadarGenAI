@@ -1,16 +1,12 @@
-import chromadb
+from chromadb import PersistentClient
 
 from app.core.config import settings
 
 
-chroma_client = chromadb.PersistentClient(
-    path=settings.CHROMA_DB_PATH
+client = PersistentClient(
+    path=settings.CHROMA_PERSIST_DIRECTORY
 )
 
-
-collection = chroma_client.get_or_create_collection(
-    name=settings.CHROMA_COLLECTION_NAME,
-    metadata={
-        "hnsw:space": "cosine"
-    }
+collection = client.get_or_create_collection(
+    name=settings.COLLECTION_NAME
 )

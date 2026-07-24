@@ -1,103 +1,47 @@
-from typing import Any, Dict
-
-from app.ai.openai_client import embeddings
+from app.ai.embeddings import embeddings
+from app.core.config import settings
 from app.db.chroma import collection
 
 
-# ==========================================================
-# ADD DOCUMENT
-# ==========================================================
+def save_document(
+    document_id: str,
+    document_type: str,
+    content: str
+):
+    embedding = embeddings.embed_query(content)
 
-def add_document(
-    text: str,
-    metadata: Dict[str, Any]
-) -> None:
-    """
-    Stores a document in ChromaDB.
-
-    Metadata should contain at least:
-    {
-        "id": ...,
-        "type": "internship" | "candidate"
-    }
-    """
-
-    embedding = embeddings.embed_query(text)
-
-    collection.add(
-        ids=[str(metadata["id"])],
-        documents=[text],
+    collection.upsert(
+        ids=[document_id],
+        documents=[content],
         embeddings=[embedding],
-        metadatas=[metadata]
+        metadatas=[
+            {
+                "document_type": document_type
+            }
+        ]
     )
 
 
-# ==========================================================
-# COSINE SIMILARITY SEARCH
-# ==========================================================
-
-def similarity_search(
+def retrieve_documents(
     query: str,
-    document_type: str,
-    n_results: int
-) -> Dict[str, Any]:
-    """
-    Performs cosine similarity search on ChromaDB.
-
-    document_type:
-        internship
-        candidate
-    """
-
+    document_type: str
+) -> list[str]:
     query_embedding = embeddings.embed_query(query)
 
     results = collection.query(
         query_embeddings=[query_embedding],
-        n_results=n_results,
+        n_results=settings.MAX_RECOMMENDATIONS,
         where={
-            "type": document_type
+            "document_type": document_type
         }
     )
 
-    return results
+    return results["documents"][0] if results["documents"] else []
 
-
-# ==========================================================
-# GET DOCUMENT BY ID
-# ==========================================================
-
-def get_document(
-    document_id: int
-) -> Dict[str, Any]:
-
-    return collection.get(
-        ids=[str(document_id)]
-    )
-
-
-# ==========================================================
-# GET ALL DOCUMENTS
-# ==========================================================
-
-def get_all_documents(
-    document_type: str
-) -> Dict[str, Any]:
-
-    return collection.get(
-        where={
-            "type": document_type
-        }
-    )
-
-
-# ==========================================================
-# DELETE DOCUMENT
-# ==========================================================
 
 def delete_document(
-    document_id: int
-) -> None:
-
+    document_id: str
+):
     collection.delete(
-        ids=[str(document_id)]
+        ids=[document_id]
     )

@@ -1,17 +1,17 @@
 from app.models.schemas import IngestRequest
-from app.repositories.chroma_repository import add_document
+from app.repositories.chroma_repository import save_document
 
 
-def ingest_document(request: IngestRequest) -> dict:
-    """
-    Stores a candidate or internship document in ChromaDB.
-    """
-
-    add_document(
-        text=request.text,
-        metadata=request.metadata
+def ingest_document(
+    request: IngestRequest
+) -> dict:
+    save_document(
+        document_id=request.document_id,
+        document_type=request.document_type,
+        content=request.content
     )
 
     return {
-        "status": "success"
+        "status": "success",
+        "message": "Document ingested successfully."
     }

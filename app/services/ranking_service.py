@@ -1,45 +1,29 @@
 import json
-import re
-from typing import List
 
-from app.ai.chat import invoke_llm
+from app.ai.llm import llm
 from app.ai.prompts import RANKING_PROMPT
-from app.core.config import settings
 
 
 def rank_profiles(
     source_profile: str,
-    target_profiles: List[str]
-) -> List[int]:
-    
-
-    target_context = "\n---\n".join(target_profiles)
+    retrieved_profiles: list[str]
+) -> list[str]:
+    if not retrieved_profiles:
+        return []
 
     prompt = RANKING_PROMPT.format(
-        source_profile=source_profile,
-        target_profiles=target_context,
-        max_recommendations=settings.MAX_RECOMMENDATIONS
+        source_summary=source_profile,
+        retrieved_profiles="\n\n".join(retrieved_profiles)
     )
 
-    response = invoke_llm(prompt)
+    response = llm.invoke(prompt)
 
-    print(f"LLM Raw Response: '{response}'")
+    ranked_indices = json.loads(response.content)
 
-    try:
-        match = re.search(r"\[(.*?)\]", response)
+    ranked_profiles = [
+        retrieved_profiles[index]
+        for index in ranked_indices
+        if 0 <= index < len(retrieved_profiles)
+    ]
 
-        if not match:
-            raise ValueError("No JSON array found in LLM response.")
-
-        json_string = f"[{match.group(1)}]"
-
-        recommended_ids = json.loads(json_string)
-
-        if not isinstance(recommended_ids, list):
-            raise ValueError("Parsed response is not a list.")
-
-        return [int(profile_id) for profile_id in recommended_ids]
-
-    except (json.JSONDecodeError, ValueError) as e:
-        print(f"Error parsing LLM response: {e}")
-        return []
+    return ranked_profiles

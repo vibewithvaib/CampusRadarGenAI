@@ -1,18 +1,23 @@
 from fastapi import FastAPI
+
 from app.api.routes import router
 
+
 app = FastAPI(
-    title="AI Recruitment Recommendation API",
-    description="FastAPI application for internship and candidate recommendation using OpenAI and ChromaDB.",
+    title="CampusRadar AI Service",
     version="1.0.0"
 )
 
-app.include_router(router)
+app.include_router(
+    router,
+    prefix="/api",
+    tags=["CampusRadar"]
+)
 
 
 @app.get("/")
 def health_check():
     return {
         "status": "success",
-        "message": "AI Recruitment Recommendation API is running."
+        "message": "CampusRadar AI Service is running."
     }

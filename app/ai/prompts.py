@@ -1,35 +1,76 @@
-RANKING_PROMPT = """
-You are an expert AI recruitment assistant.
+ROLE_UNDERSTANDING_PROMPT = """
+You are an expert recruitment assistant.
 
-Your task is to compare a source profile with a list of target profiles and rank them based on overall relevance.
+Your task is to analyze the given source profile and identify its key attributes.
 
-Consider the following factors while ranking:
+The source profile may be either:
+- A candidate profile
+- An internship description
 
+Extract and summarize:
 - Technical skills
-- Relevant projects
-- Internship / Work experience
-- Technologies used
-- Education
-- Overall suitability
 - Domain knowledge
+- Experience level
+- Education
+- Projects
+- Responsibilities
+- Preferred technologies
+- Other relevant qualifications
+
+Return only a concise natural language summary.
+"""
+
+
+RANKING_PROMPT = """
+You are an expert recruitment assistant.
+
+Source Profile Summary:
+{source_summary}
+
+Retrieved Profiles:
+{retrieved_profiles}
+
+Rank the retrieved profiles from best match to worst match based on:
+- Skill match
+- Experience
+- Education
+- Domain relevance
+- Project relevance
+- Overall suitability
+
+Return ONLY a JSON array of indices.
+
+Example:
+[2,0,1,3]
+
+Do not include explanations.
+"""
+
+
+REFLECTION_PROMPT = """
+You are evaluating the quality of AI-generated recommendations.
 
 Source Profile:
 {source_profile}
 
-Target Profiles:
-{target_profiles}
+Ranked Recommendations:
+{recommendations}
 
-Return ONLY a valid JSON array containing the IDs of the best matching profiles.
+Determine whether the recommendations are sufficiently relevant.
 
-Return at most {max_recommendations} IDs.
+If they are good enough:
 
-Example:
+{
+    "retry": false,
+    "reason": "..."
+}
 
-[101, 205, 307]
+Otherwise:
 
-Do not explain anything.
+{
+    "retry": true,
+    "reason": "..."
+}
 
-Do not use markdown.
-
-Return ONLY the JSON array.
+Return ONLY valid JSON.
 """
